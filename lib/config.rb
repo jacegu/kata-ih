@@ -1,0 +1,11 @@
+MONGO_HOST     = 'localhost'
+MONGO_PORT     = 27017
+MONGO_USER     = ''
+MONGO_PASSWORD = ''
+MONGO_DATABASE = 'iron-hack-dojo'
+SALT           = 'iron-hack-salt'
+SMTP_HOST      = 'mailtrap.io'
+SMTP_PORT      = 2525
+SMTP_USE_TTLS  = false
+SMPT_USERNAME  = 'ironhack-8b097121b663a7f7'
+SMTP_PASSWORD  = '564e0ec6b1c9561e'
