@@ -18,7 +18,7 @@ class UsersController < Sinatra::Base
     db = Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE)
     accounts = db['accounts']
 
-    if accounts.find_one(email: email) == nil
+    if email_taken?(email, accounts)
       encrypted_password = Digest::SHA256.hexdigest("#{params[:password]}#{SALT}")
       confirmation_token = Digest::MD5.hexdigest("#{email}#{SALT}")
       accounts.insert(
@@ -37,6 +37,10 @@ class UsersController < Sinatra::Base
   end
 
   private
+
+  def email_taken?(email, accounts)
+    accounts.find_one(email: email) == nil
+  end
 
   def send_verification_email(email, confirmation_token)
     Pony.mail(
