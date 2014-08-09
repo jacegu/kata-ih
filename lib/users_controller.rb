@@ -18,8 +18,7 @@ class UsersController < Sinatra::Base
     db = Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE)
     collection = db['accounts']
     if collection.find_one(email: @email) == nil
-      password = params[:password]
-      p2 = Digest::SHA256.hexdigest("#{password}#{SALT}")
+      p2 = Digest::SHA256.hexdigest("#{params[:password]}#{SALT}")
       ct = Digest::MD5.hexdigest("#{@email}#{SALT}")
       collection.insert(
         email: @email,
