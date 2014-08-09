@@ -3,8 +3,7 @@ require 'users_controller'
 
 describe UsersController do
   let(:mongo) do
-    db = Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE)
-    db
+    Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE)
   end
 
   before do
@@ -12,8 +11,7 @@ describe UsersController do
   end
 
   it 'can post' do
-    post '/account', email: 'yo@email', password: 'foobar'
-    puts last_response.body
+    post_and_inspect '/account', email: 'yo@email', password: 'foobar'
     expect(last_response).to be_ok
   end
 end
