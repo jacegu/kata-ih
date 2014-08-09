@@ -16,12 +16,12 @@ class UsersController < Sinatra::Base
   post '/account' do
     email = params[:email]
     db = Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE)
-    collection = db['accounts']
+    accounts = db['accounts']
 
-    if collection.find_one(email: email) == nil
+    if accounts.find_one(email: email) == nil
       encrypted_password = Digest::SHA256.hexdigest("#{params[:password]}#{SALT}")
       confirmation_token = Digest::MD5.hexdigest("#{email}#{SALT}")
-      collection.insert(
+      accounts.insert(
         email: email,
         password: encrypted_password,
         confirmation_token: confirmation_token,
