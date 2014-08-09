@@ -10,19 +10,40 @@ require 'pony'
 
 require_relative 'config'
 
+class AccountsRepository
+  def initialize(collection)
+    @accounts = collection
+  end
+
+  def email_taken?(email)
+    @accounts.find_one(email: email) == nil
+  end
+
+  def create_account(email, encrypted_password, confirmation_token)
+    @accounts.insert(
+      email: email,
+      password: encrypted_password,
+      confirmation_token: confirmation_token,
+      confirmed_at: nil,
+      created_at: Time.now,
+      last_signed_in_at: nil
+    )
+  end
+end
+
 class AccountsController < Sinatra::Base
   helpers Sinatra::JSON
 
   post '/account' do
     email = params[:email]
     db = Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE)
-    accounts = db['accounts']
+    accounts = AccountsRepository.new(db['accounts'])
 
-    if email_taken?(email, accounts)
+    if accounts.email_taken?(email)
       encrypted_password = Digest::SHA256.hexdigest("#{params[:password]}#{SALT}")
       confirmation_token = Digest::MD5.hexdigest("#{email}#{SALT}")
 
-      create_account(email, encrypted_password, confirmation_token, accounts)
+      accounts.create_account(email, encrypted_password, confirmation_token)
 
       send_verification_email(email, confirmation_token)
     else
@@ -32,21 +53,6 @@ class AccountsController < Sinatra::Base
   end
 
   private
-
-  def email_taken?(email, accounts)
-    accounts.find_one(email: email) == nil
-  end
-
-  def create_account(email, encrypted_password, confirmation_token, accounts)
-    accounts.insert(
-      email: email,
-      password: encrypted_password,
-      confirmation_token: confirmation_token,
-      confirmed_at: nil,
-      created_at: Time.now,
-      last_signed_in_at: nil
-    )
-  end
 
   def send_verification_email(email, confirmation_token)
     Pony.mail(
