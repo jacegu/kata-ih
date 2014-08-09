@@ -10,7 +10,7 @@ require 'pony'
 
 require_relative 'config'
 
-class UsersController < Sinatra::Base
+class AccountsController < Sinatra::Base
   helpers Sinatra::JSON
 
   post '/account' do
@@ -21,14 +21,9 @@ class UsersController < Sinatra::Base
     if email_taken?(email, accounts)
       encrypted_password = Digest::SHA256.hexdigest("#{params[:password]}#{SALT}")
       confirmation_token = Digest::MD5.hexdigest("#{email}#{SALT}")
-      accounts.insert(
-        email: email,
-        password: encrypted_password,
-        confirmation_token: confirmation_token,
-        confirmed_at: nil,
-        created_at: Time.now,
-        last_signed_in_at: nil
-      )
+
+      create_account(email, encrypted_password, confirmation_token, accounts)
+
       send_verification_email(email, confirmation_token)
     else
       status 409
@@ -40,6 +35,17 @@ class UsersController < Sinatra::Base
 
   def email_taken?(email, accounts)
     accounts.find_one(email: email) == nil
+  end
+
+  def create_account(email, encrypted_password, confirmation_token, accounts)
+    accounts.insert(
+      email: email,
+      password: encrypted_password,
+      confirmation_token: confirmation_token,
+      confirmed_at: nil,
+      created_at: Time.now,
+      last_signed_in_at: nil
+    )
   end
 
   def send_verification_email(email, confirmation_token)

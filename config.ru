@@ -1,5 +1,5 @@
 #encoding: utf-8
 
-require './lib/users_controller'
+require './lib/accounts_controller'
 
-run UsersController
+run AccountsController

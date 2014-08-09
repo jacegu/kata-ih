@@ -1,7 +1,7 @@
 require 'http_spec_helper'
-require 'users_controller'
+require 'accounts_controller'
 
-describe UsersController do
+describe AccountsController do
   let(:accounts) { mongo['accounts'] }
   let(:mongo) { Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE) }
 
