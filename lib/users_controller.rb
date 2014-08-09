@@ -14,15 +14,15 @@ class UsersController < Sinatra::Base
   helpers Sinatra::JSON
 
   post '/account' do
-    @e = params[:email]
+    @email = params[:email]
     db = Mongo::Connection.new(MONGO_HOST, MONGO_PORT).db(MONGO_DATABASE)
     collection = db['accounts']
-    if collection.find_one(email: @e) == nil
+    if collection.find_one(email: @email) == nil
       p = params[:password]
       p2 = Digest::SHA256.hexdigest("#{p}#{SALT}")
-      ct = Digest::MD5.hexdigest("#{@e}#{SALT}")
+      ct = Digest::MD5.hexdigest("#{@email}#{SALT}")
       collection.insert(
-        email: @e,
+        email: @email,
         password: p2,
         confirmation_token: ct,
         confirmed_at: nil,
@@ -31,7 +31,7 @@ class UsersController < Sinatra::Base
       )
       Pony.mail(
         charset: 'utf-8',
-        to:      @e,
+        to:      @email,
         from:    'hola@foobar.com <hola@foobar.com>',
         subject: 'Verifica tu cuenta de foobar',
         body:    %Q{
@@ -52,7 +52,7 @@ class UsersController < Sinatra::Base
       )
     else
       status 409
-      json error: "Ya hay un usuario registrado con el email #{@e}"
+      json error: "Ya hay un usuario registrado con el email #{@email}"
     end
   end
 end
