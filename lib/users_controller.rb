@@ -20,11 +20,11 @@ class UsersController < Sinatra::Base
 
     if collection.find_one(email: @email) == nil
       encrypted_password = Digest::SHA256.hexdigest("#{params[:password]}#{SALT}")
-      ct = Digest::MD5.hexdigest("#{@email}#{SALT}")
+      confirmation_token = Digest::MD5.hexdigest("#{@email}#{SALT}")
       collection.insert(
         email: @email,
         password: encrypted_password,
-        confirmation_token: ct,
+        confirmation_token: confirmation_token,
         confirmed_at: nil,
         created_at: Time.now,
         last_signed_in_at: nil
@@ -35,7 +35,7 @@ class UsersController < Sinatra::Base
         from:    'hola@foobar.com <hola@foobar.com>',
         subject: 'Verifica tu cuenta de foobar',
         body:    %Q{
-        Verifica tu email y accede a tu cuenta desde https://foobar.com/verification/#{ct}"
+        Verifica tu email y accede a tu cuenta desde https://foobar.com/verification/#{confirmation_token}"
 
         ¡Muchas gracias!
         },
